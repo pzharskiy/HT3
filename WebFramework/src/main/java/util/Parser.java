@@ -1,0 +1,52 @@
+package util;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Parser {
+
+    Checker checker = new Checker();
+
+    public List<String> readFile(String FILE_PATH) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(FILE_PATH), StandardCharsets.UTF_8));
+        List<String> commands = new ArrayList<>();
+
+        //Получаем построчно комманды
+        String line;
+        while ((line = reader.readLine()) != null) {
+            //Добавляем все команды в список
+            commands.add(line);
+
+        }
+        return commands;
+    }
+
+    public List<String> parse(String command) {
+
+        //Отделяем аргументы от операции из строки
+        String argument = command.substring(command.indexOf(" ") + 1, command.length());
+
+        List<String> parsedCommand = new ArrayList<String>();
+        //Заносим первым значением - операцию
+        parsedCommand.add(0, command.substring(0, command.indexOf(" ")).trim());
+        //Если аргументов > 1, то разбиваем на части и заносим отдельно
+        if (argument.substring(1, argument.length() - 1).contains("\"")) {
+            String arguments[] = argument.replaceAll("\"", "").split(" ");
+            for (String a : arguments) {
+                parsedCommand.add(a);
+
+            }
+        } else parsedCommand.add(argument.substring(1, argument.length() - 1));
+
+        checker.checkCommandArguments(parsedCommand);
+
+        return parsedCommand;
+    }
+
+}
