@@ -58,4 +58,28 @@ public class Checker {
             }
         }
     }
+
+    public void checkCommandArguments( List<String> commands) throws InvalidNumberOfArgumentsException, InvalidArgumentsException{
+
+            switch (commands.get(0)) {
+                case "open":
+                    if (commands.size() != 3) {
+                        throw new InvalidNumberOfArgumentsException("Передано неверное количество аргументов. Необходимо: 2." +
+                                " Первый аргумент - url, второй - время timeout");
+                    }
+
+                    if (!commands.get(2).matches("[+]?\\d+")) {
+                        throw new InvalidArgumentsException("Время ожидания timeout должно быть целым положительным числом");
+                    }
+
+                    break;
+
+                default:
+
+                    if (commands.size() != 2) {
+                        throw new InvalidNumberOfArgumentsException("Передано неверное количество аргументов. Необходимо: 1.");
+                    }
+                    break;
+        }
+    }
 }

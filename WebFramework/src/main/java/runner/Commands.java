@@ -1,5 +1,6 @@
 package runner;
 
+import util.Checker;
 import util.Parser;
 import util.Timer;
 
@@ -60,7 +61,109 @@ public class Commands {
 
     }
 
+    //Две различные реализации функции execute. Одна построеная на карте, другая на списке.
+    //В реализации со списком (execute) можно реализовать более сложный сценарий проверок (множество раз искать
+    //различные ссылки, открывать разные страницы и все в одном сценарии), т.к. команды(с аргументами) являются строками-элементами
+    //обычного списка. В свою очередь минусом является неочевидность работы с такими элементами
     public void execute() throws Exception {
+        Operations operation = new Operations();
+        Parser parser = new Parser();
+        //Проходимся по списку команд для операций
+        for (String eachCommand : commands) {
+            //Строку с коммандой и ее аргументами разбиваем
+            List<String> command = parser.parse(eachCommand);
+            //Мы получаем лист, где 0 элемент - операция, остальные - аргументы
+            switch (command.remove(0)) {
+                case "open":
+                    timer.start();
+                    page = operation.open(command);
+                    timer.end();
+                    if (!page.equals("")) {
+                        succes_message = "+";
+                    } else {
+                        succes_message = "!";
+                    }
+                    log.append(succes_message + " [open \"" + command.get(0) + "\" \"" + command.get(1) + "\"] " +
+                            timer.duration() + "\n");
+                    timer.reset();
+                    //System.out.println(page);
+                    break;
+
+                case "checkLinkPresentByHref":
+                    timer.start();
+                    if (operation.checkLinkPresentByHref(page, command)) {
+                        timer.end();
+                        succes_message = "+";
+                    } else {
+                        timer.end();
+                        succes_message = "!";
+                    }
+                    log.append(succes_message + " [checkLinkPresentByHref \"" + command.get(0) + "\"] " +
+                            timer.duration() + "\n");
+                    timer.reset();
+                    break;
+
+                case "checkLinkPresentByName":
+                    timer.start();
+                    if (operation.checkLinkPresentByName(page, command)) {
+                        timer.end();
+                        succes_message = "+";
+                    } else {
+                        timer.end();
+                        succes_message = "!";
+                    }
+                    log.append(succes_message + " [checkLinkPresentByName \"" + command.get(0) + "\"] " +
+                            timer.duration() + "\n");
+                    timer.reset();
+                    break;
+
+                case "checkPageTitle":
+                    timer.start();
+                    if (operation.checkPageTitle(page, command)) {
+                        timer.end();
+                        succes_message = "+";
+                    } else {
+                        timer.end();
+                        succes_message = "!";
+                    }
+                    log.append(succes_message + " [checkPageTitle \"" + command.get(0) + "\"] " +
+                            timer.duration() + "\n");
+                    timer.reset();
+                    break;
+
+                case "checkPageContains":
+                    timer.start();
+                    if (operation.checkPageContains(page, command)) {
+                        timer.end();
+                        succes_message = "+";
+                    } else {
+                        timer.end();
+                        succes_message = "!";
+                    }
+                    log.append(succes_message + " [checkPageContains \"" + command.get(0) + "\"] " +
+                            timer.duration() + "\n");
+                    timer.reset();
+                    break;
+
+                default:
+                    log.append("? " + "[unknown command]\n");
+                    //throw new UnknownOperationException("Несуществующая комманда. Проверьте введенные данные");
+            }
+
+        }
+
+        log.append("Total tests: " + operation.getAmountOfCommands() + "\n");
+        log.append("Passed/Failed: " + operation.getPassedTests() + "/" + operation.getFailedTests() + "\n");
+        log.append("Total time: " + timer.totalTime() + "\n");
+        log.append("Average time: " + timer.averageTime(operation.getAmountOfCommands()) + "\n");
+        System.out.println(log.toString());
+    }
+
+    //Данная реализация построена на карте, где ключ-команда, значение-аргументы. Простота, удобство,
+    //легкость понимания, лаконичность - плюсы данной реализации.
+    //Однако из-за такой реализации мы не можем выполнять одинаковые операции с различными аргументами, т.к.
+    //последняя операция будет переписывать предыдущие.
+    public void executeByMap() throws Exception {
         Operations operation = new Operations();
         Parser parser = new Parser();
         commandsMap = parser.parse(commands);
@@ -152,4 +255,5 @@ public class Commands {
         log.append("Average time: " + timer.averageTime(operation.getAmountOfCommands()) + "\n");
         System.out.println(log.toString());
     }
+
 }

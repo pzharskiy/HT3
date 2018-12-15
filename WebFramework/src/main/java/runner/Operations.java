@@ -51,29 +51,13 @@ public class Operations {
         amountOfCommands++;
         //Строка для хранения тела страницы, так как ссылку мы ищем именно там, а не в head страницы
         String body = getPageBody(page);
-        String beginTag = "<a";
-        String endTag = "</a>";
-        int startIndex = 0;
-        int lastIndex = 0;
-        //Перебираем все ссылки и проверем
-        while (startIndex != -1 && lastIndex != -1) {
-
-            //Получаем индекс начала тега <a>
-            startIndex = body.indexOf(beginTag, lastIndex + endTag.length() - 1);
-            //Получаем индекс окончания тега </a>
-            lastIndex = body.indexOf(endTag, lastIndex + endTag.length() - 1);
-
-            if (startIndex != -1 && lastIndex != -1) {
-                //Проверяем, содержит ли <a...> запрашиваемый текст </a>
-                if (body.substring(startIndex, lastIndex).contains(">" + value.get(0))) ;
-                {
-                    passed++;
-                    return true;
-                }
-            }
+        if (body.contains(">"+value.get(0)+"</a>"))
+        {   passed++;
+            return true;}
+        else {
+            failed++;
+            return false;
         }
-        failed++;
-        return false;
     }
 
     public boolean checkPageTitle(String page, List<String> value) {

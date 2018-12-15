@@ -53,4 +53,27 @@ public class Parser {
         checker.checkCommandArguments(commandsMap);
         return commandsMap;
     }
+
+    public List<String> parse(String command) {
+
+        //Отделяем аргументы от операции из строки
+        String argument = command.substring(command.indexOf(" ") + 1, command.length());
+
+        List<String> parsedCommand = new ArrayList<String>();
+        //Заносим первым значением - операцию
+        parsedCommand.add(0, command.substring(0, command.indexOf(" ")).trim());
+        //Если аргументов > 1, то разбиваем на части и заносим отдельно
+        if (argument.substring(1, argument.length() - 1).contains("\"")) {
+            String arguments[] = argument.replaceAll("\"", "").split(" ");
+            for (String a : arguments) {
+                parsedCommand.add(a);
+
+            }
+        } else parsedCommand.add(argument.substring(1, argument.length() - 1));
+
+        checker.checkCommandArguments(parsedCommand);
+
+        return parsedCommand;
+    }
+
 }
