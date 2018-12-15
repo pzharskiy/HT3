@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Parser {
 
@@ -27,26 +29,28 @@ public class Parser {
         return commands;
     }
 
-    public List<String> parse(String command) {
+    public Map<String,List<String>> parse(List<String> commands) {
 
-        //Отделяем аргументы от операции из строки
-        String argument = command.substring(command.indexOf(" ") + 1, command.length());
+        Map<String, List<String>> commandsMap = new LinkedHashMap<>();
+        for (String command: commands
+             ) {
 
-        List<String> parsedCommand = new ArrayList<String>();
-        //Заносим первым значением - операцию
-        parsedCommand.add(0, command.substring(0, command.indexOf(" ")).trim());
-        //Если аргументов > 1, то разбиваем на части и заносим отдельно
-        if (argument.substring(1, argument.length() - 1).contains("\"")) {
-            String arguments[] = argument.replaceAll("\"", "").split(" ");
-            for (String a : arguments) {
-                parsedCommand.add(a);
+            //Отделяем аргументы от операции из строки
+            String argument = command.substring(command.indexOf(" ") + 1, command.length());
+            List<String> parsedCommand = new ArrayList<String>();
+            //Если аргументов > 1, то разбиваем на части и заносим отдельно
+            if (argument.substring(1, argument.length() - 1).contains("\"")) {
+                String arguments[] = argument.replaceAll("\"", "").split(" ");
+                for (String a : arguments) {
+                    parsedCommand.add(a);
+                }
+            } else parsedCommand.add(argument.substring(1, argument.length() - 1));
 
-            }
-        } else parsedCommand.add(argument.substring(1, argument.length() - 1));
+            //Заносим в карту
+            commandsMap.put(command.substring(0, command.indexOf(" ")).trim(), parsedCommand);
 
-        checker.checkCommandArguments(parsedCommand);
-
-        return parsedCommand;
+        }
+        checker.checkCommandArguments(commandsMap);
+        return commandsMap;
     }
-
 }

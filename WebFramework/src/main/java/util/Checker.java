@@ -6,7 +6,9 @@ import exceptions.InvalidNumberOfArgumentsException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Checker {
 
@@ -29,29 +31,31 @@ public class Checker {
 
     }
 
-    public void checkCommandArguments(List<String> arguments) throws InvalidNumberOfArgumentsException, InvalidArgumentsException{
+    public void checkCommandArguments( Map<String, List<String>> commandsMap) throws InvalidNumberOfArgumentsException, InvalidArgumentsException{
 
-        switch (arguments.get(0)) {
-            case "open":
-                if (arguments.size() != 3) {
-                    throw new InvalidNumberOfArgumentsException("Передано неверное количество аргументов. Необходимо: 2." +
-                            " Первый аргумент - url, второй - время timeout");
-                }
+        Iterator<Map.Entry<String, List<String>>> iter = commandsMap.entrySet().iterator();
+        while (iter.hasNext())
+        { Map.Entry<String, List<String>> entry = iter.next();
+            switch (entry.getKey()) {
+                case "open":
+                    if (entry.getValue().size() != 2) {
+                        throw new InvalidNumberOfArgumentsException("В команду ["+entry.getKey()+"] передано неверное количество аргументов. Необходимо: 2." +
+                                " Первый аргумент - url, второй - время timeout");
+                    }
 
-                if (!arguments.get(2).matches("[+]?\\d+"))
-                {
-                    throw  new InvalidArgumentsException("Время ожидания timeout должно быть целым положительным числом");
-                }
+                    if (!entry.getValue().get(1).matches("[+]?\\d+")) {
+                        throw new InvalidArgumentsException("В команде ["+entry.getKey()+"] время ожидания timeout должно быть целым положительным числом");
+                    }
 
-                break;
+                    break;
 
-            default:
+                default:
 
-                if (arguments.size() != 2){
-                    throw new InvalidNumberOfArgumentsException("Передано неверное количество аргументов. Необходимо: 1.");
-                }
-                break;
-
+                    if (entry.getValue().size() != 1) {
+                        throw new InvalidNumberOfArgumentsException("В команду ["+entry.getKey()+"] передано неверное количество аргументов. Необходимо: 1.");
+                    }
+                    break;
+            }
         }
     }
 }
